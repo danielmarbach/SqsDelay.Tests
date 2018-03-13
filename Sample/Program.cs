@@ -173,7 +173,7 @@ class Program
             {
                 foreach (var entry in sentAndReceived.OrderBy(e => e.Value))
                 {
-                    Console.WriteLine(entry.Key);
+                    Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value}'");
                 }
             }
             else
@@ -204,7 +204,7 @@ class Program
             Console.WriteLine("--- Not yet received ---");
             foreach (var entry in sentAndReceived.OrderBy(e => e.Value))
             {
-                Console.WriteLine(entry.Key);
+                Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value}'");
             }
 
             Console.WriteLine("--- Not yet received ---");
