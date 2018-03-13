@@ -35,8 +35,7 @@ class Program
         catch (QueueDoesNotExistException)
         {
         }
-        Console.WriteLine("Queues purged. Press any key to continue");
-        Console.ReadKey();
+        Console.WriteLine("Queues purged.");
         
         var endpointConfiguration = new EndpointConfiguration("Sqs.Delayed.Tests");
         var transport = endpointConfiguration.UseTransport<SqsTransport>();
@@ -73,7 +72,7 @@ class Program
 
             while (!token.IsCancellationRequested)
             {
-                var delayDeliveryWith = TimeSpan.FromMinutes(random.Next(1, 4) * random.Next(14, 16));
+                var delayDeliveryWith = TimeSpan.FromMinutes(random.Next(1, 5) * random.Next(14, 17));
 
                 for (var i = 0; i < random.Next(1, 10); i++)
                 {
@@ -98,8 +97,8 @@ class Program
                     sentAndReceived.AddOrUpdate(myMessage.Attempt, shouldBeReceivedAt, (s, v) => shouldBeReceivedAt);
                 }
 
-                delayDeliveryWith = TimeSpan.FromMinutes(random.Next(1, 4) * random.Next(14, 16));
-                for (var i = 0; i < random.Next(1, 5); i++)
+                delayDeliveryWith = TimeSpan.FromMinutes(random.Next(1, 5) * random.Next(14, 17));
+                for (var i = 0; i < random.Next(1, 10); i++)
                 {
                     if (token.IsCancellationRequested)
                     {
@@ -123,7 +122,7 @@ class Program
                     sentAndReceived.AddOrUpdate(myMessage.Attempt, shouldBeReceivedAt, (s, v) => shouldBeReceivedAt);
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(random.Next(1, 15)), token);
+                await Task.Delay(TimeSpan.FromMinutes(random.Next(1, 16)), token);
             }
         }
         catch (OperationCanceledException)
@@ -148,6 +147,7 @@ class Program
     {
         while (!token.IsCancellationRequested)
         {
+            Console.Clear();
             Console.WriteLine("--- Current state ---");
             if (!sentAndReceived.IsEmpty)
             {
@@ -163,7 +163,7 @@ class Program
             Console.WriteLine("--- Current state ---");
             try
             {
-                await Task.Delay(TimeSpan.FromMinutes(10), token);
+                await Task.Delay(TimeSpan.FromSeconds(20), token);
             }
             catch (OperationCanceledException)
             {
@@ -177,6 +177,7 @@ class Program
         
         while (!sentAndReceived.IsEmpty)
         {
+            Console.Clear();
             Console.WriteLine("--- Not yet received ---");
             foreach (var entry in sentAndReceived.OrderBy(e => e.Value))
             {
@@ -186,9 +187,9 @@ class Program
             Console.WriteLine("--- Not yet received ---");
             try
             {
-                await Task.Delay(TimeSpan.FromMinutes(1));
+                await Task.Delay(TimeSpan.FromSeconds(20));
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException)
             {
             }
         }
