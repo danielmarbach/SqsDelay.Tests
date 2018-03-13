@@ -130,7 +130,7 @@ class Program
                     var myMessage = new MyMessage
                     {
                         Data = new byte[257 * 1024],
-                        Attempt = $"MyMessageLarge/Attempt {attempt++}/Sent at '{now.ToString(CultureInfo.InvariantCulture)}'/Delayed with '{delayDeliveryWith}'"
+                        Attempt = $"MyMessageLarge/Attempt {attempt++}/Sent at '{now.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'/Delayed with '{delayDeliveryWith.ToString("HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'"
                     };
                     var options = new SendOptions();
                     options.RouteToThisEndpoint();
@@ -173,7 +173,7 @@ class Program
             {
                 foreach (var entry in sentAndReceived.OrderBy(e => e.Value))
                 {
-                    Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value}'");
+                    Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value.ToString("HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'");
                 }
             }
             else
@@ -204,7 +204,7 @@ class Program
             Console.WriteLine("--- Not yet received ---");
             foreach (var entry in sentAndReceived.OrderBy(e => e.Value))
             {
-                Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value}'");
+                Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value.ToString("HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'");
             }
 
             Console.WriteLine("--- Not yet received ---");
@@ -233,7 +233,7 @@ class Program
             foreach (var statsEntry in stats.OrderBy(s => s.ScheduledFor))
             {
                 var delta = statsEntry.ReceivedAt - statsEntry.ScheduledFor;
-                await writer.WriteLineAsync($"{statsEntry.Id},{statsEntry.ScheduledFor},{statsEntry.ReceivedAt},{delta}");
+                await writer.WriteLineAsync($"{statsEntry.Id},{statsEntry.ScheduledFor.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)},{statsEntry.ReceivedAt.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)},{delta.ToString("HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}");
             }
 
             await writer.FlushAsync();
