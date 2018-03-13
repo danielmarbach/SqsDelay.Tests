@@ -50,7 +50,7 @@ class Program
         var endpointInstance = await Endpoint.Start(endpointConfiguration)
             .ConfigureAwait(false);
 
-        var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+        var cts = new CancellationTokenSource(TimeSpan.FromDays(1));
         var syncher = new TaskCompletionSource<bool>();
         
         var sendTask = Task.Run(() => Sending(endpointInstance, cts.Token, syncher), CancellationToken.None);
