@@ -66,7 +66,7 @@ class Program
         var endpointInstance = await Endpoint.Start(endpointConfiguration)
             .ConfigureAwait(false);
 
-        var cts = new CancellationTokenSource(TimeSpan.FromDays(1));
+        var cts = new CancellationTokenSource(TimeSpan.FromHours(1));
         var syncher = new TaskCompletionSource<bool>();
         
         var sendTask = Task.Run(() => Sending(endpointInstance, cts.Token, syncher), CancellationToken.None);
@@ -92,9 +92,9 @@ class Program
 
             while (!token.IsCancellationRequested)
             {
-                var delayDeliveryWith = TimeSpan.FromMinutes(random.Next(1, 5) * random.Next(14, 17));
+                var delayDeliveryWith = TimeSpan.FromMinutes(random.Next(1, 5) * random.Next(13, 18)).Add(TimeSpan.FromSeconds(random.Next(0, 60)));
 
-                for (var i = 0; i < random.Next(1, 10); i++)
+                for (var i = 0; i < random.Next(1, 20); i++)
                 {
                     if (token.IsCancellationRequested)
                     {
@@ -105,7 +105,7 @@ class Program
                     var shouldBeReceivedAt = now + delayDeliveryWith;
                     var myMessage = new MyMessage
                     {
-                        Attempt = $"MyMessageSmall/Attempt {attempt++}/Sent at '{now.ToString(CultureInfo.InvariantCulture)}'/Delayed with '{delayDeliveryWith}'"
+                        Attempt = $"MyMessageSmall/Attempt {attempt++}/Sent at '{now.ToString("yyyy-MM-dd HH:mm:ss:ffffff", CultureInfo.InvariantCulture)}'/Delayed with '{delayDeliveryWith.ToString(@"hh\:m\:ss\.fff", CultureInfo.InvariantCulture)}'"
                     };
                     var options = new SendOptions();
                     options.RouteToThisEndpoint();
@@ -117,8 +117,8 @@ class Program
                     sentAndReceived.AddOrUpdate(myMessage.Attempt, shouldBeReceivedAt, (s, v) => shouldBeReceivedAt);
                 }
 
-                delayDeliveryWith = TimeSpan.FromMinutes(random.Next(1, 5) * random.Next(14, 17));
-                for (var i = 0; i < random.Next(1, 10); i++)
+                delayDeliveryWith = TimeSpan.FromMinutes(random.Next(1, 5) * random.Next(13, 18)).Add(TimeSpan.FromSeconds(random.Next(0, 60)));
+                for (var i = 0; i < random.Next(1, 20); i++)
                 {
                     if (token.IsCancellationRequested)
                     {
@@ -130,7 +130,7 @@ class Program
                     var myMessage = new MyMessage
                     {
                         Data = new byte[257 * 1024],
-                        Attempt = $"MyMessageLarge/Attempt {attempt++}/Sent at '{now.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'/Delayed with '{delayDeliveryWith.ToString("HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'"
+                        Attempt = $"MyMessageLarge/Attempt {attempt++}/Sent at '{now.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'/Delayed with '{delayDeliveryWith.ToString(@"hh\:mm\:ss\.fff", CultureInfo.InvariantCulture)}'"
                     };
                     var options = new SendOptions();
                     options.RouteToThisEndpoint();
@@ -173,7 +173,7 @@ class Program
             {
                 foreach (var entry in sentAndReceived.OrderBy(e => e.Value))
                 {
-                    Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value.ToString("HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'");
+                    Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'");
                 }
             }
             else
@@ -204,7 +204,7 @@ class Program
             Console.WriteLine("--- Not yet received ---");
             foreach (var entry in sentAndReceived.OrderBy(e => e.Value))
             {
-                Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value.ToString("HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'");
+                Console.WriteLine($"'{entry.Key}' to be received at '{entry.Value.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}'");
             }
 
             Console.WriteLine("--- Not yet received ---");
@@ -233,7 +233,7 @@ class Program
             foreach (var statsEntry in stats.OrderBy(s => s.ScheduledFor))
             {
                 var delta = statsEntry.ReceivedAt - statsEntry.ScheduledFor;
-                await writer.WriteLineAsync($"{statsEntry.Id},{statsEntry.ScheduledFor.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)},{statsEntry.ReceivedAt.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)},{delta.ToString("HH:mm:ss.ffffff", CultureInfo.InvariantCulture)}");
+                await writer.WriteLineAsync($"{statsEntry.Id},{statsEntry.ScheduledFor.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)},{statsEntry.ReceivedAt.ToString("yyyy-MM-dd HH:mm:ss.ffffff", CultureInfo.InvariantCulture)},{delta.ToString(@"hh\:mm\:ss\.fff", CultureInfo.InvariantCulture)}");
             }
 
             await writer.FlushAsync();
