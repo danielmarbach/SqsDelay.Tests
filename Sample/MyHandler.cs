@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Logging;
 
@@ -9,7 +10,11 @@ public class MyHandler :
 
     public Task Handle(MyMessage message, IMessageHandlerContext context)
     {
-        Program.sentAndReceived.TryRemove(message.Attempt, out var _);
+        if (Program.sentAndReceived.TryRemove(message.Attempt, out var scheduledFor))
+        {
+            Program.stats.Add(new Program.StatsEntry(message.Attempt, scheduledFor, DateTime.UtcNow));    
+        }
+        
         return Task.CompletedTask;
     }
 }

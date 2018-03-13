@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,22 @@ using NServiceBus;
 class Program
 {
     public static ConcurrentDictionary<string, DateTime> sentAndReceived = new ConcurrentDictionary<string, DateTime>();
+    
+    public static ConcurrentBag<StatsEntry> stats = new ConcurrentBag<StatsEntry>();
+
+    public struct StatsEntry
+    {
+        public string Id;
+        public DateTime ScheduledFor;
+        public DateTime ReceivedAt;
+
+        public StatsEntry(string id, DateTime scheduledFor, DateTime receivedAt)
+        {
+            Id = id;
+            ScheduledFor = scheduledFor;
+            ReceivedAt = receivedAt;
+        }
+    }
     
     static async Task Main()
     {
@@ -164,6 +181,9 @@ class Program
                 Console.WriteLine("empty.");
             }
             Console.WriteLine("--- Current state ---");
+
+            await WriteStats();
+            
             try
             {
                 await Task.Delay(TimeSpan.FromSeconds(20), token);
@@ -197,9 +217,27 @@ class Program
             }
         }
         
+        await WriteStats();
+        
         Console.WriteLine();
         Console.WriteLine("--- Summary ---");
         Console.WriteLine("Received everything. Done");
         Console.WriteLine("--- Summary ---");
+    }
+
+    static async Task WriteStats()
+    {
+        using (var writer = new StreamWriter(@".\stats.txt", false))
+        {
+            await writer.WriteLineAsync($"{nameof(StatsEntry.Id)},{nameof(StatsEntry.ScheduledFor)},{nameof(StatsEntry.ReceivedAt)},Delta");
+            foreach (var statsEntry in stats.OrderBy(s => s.ScheduledFor))
+            {
+                var delta = statsEntry.ReceivedAt - statsEntry.ScheduledFor;
+                await writer.WriteLineAsync($"{statsEntry.Id},{statsEntry.ScheduledFor},{statsEntry.ReceivedAt},{delta}");
+            }
+
+            await writer.FlushAsync();
+            writer.Close();
+        }
     }
 }
