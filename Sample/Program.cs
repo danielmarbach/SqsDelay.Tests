@@ -227,7 +227,7 @@ class Program
 
     static async Task WriteStats()
     {
-        using (var writer = new StreamWriter(@".\stats.txt", false))
+        using (var writer = new StreamWriter(@".\stats.csv", false))
         {
             await writer.WriteLineAsync($"{nameof(StatsEntry.Id)},{nameof(StatsEntry.ScheduledFor)},{nameof(StatsEntry.ReceivedAt)},Delta");
             foreach (var statsEntry in stats.OrderBy(s => s.ScheduledFor))
