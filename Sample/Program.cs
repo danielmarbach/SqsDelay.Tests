@@ -61,6 +61,9 @@ class Program
         
         await endpointInstance.Stop()
             .ConfigureAwait(false);
+
+        Console.WriteLine("Press any key to exit.");
+        Console.ReadKey();
     }
 
     static async Task Sending(IMessageSession endpointInstance, CancellationToken token, TaskCompletionSource<bool> syncher)
